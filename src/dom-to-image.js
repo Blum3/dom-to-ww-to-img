@@ -53,14 +53,38 @@
     function toSvg(node, options) {
         options = options || {};
         copyOptions(options);
+        const startTime = performance.now()
+        let cloneNodeTime
+        let fontsTime
+        let imagesTime
+        let optionsTime
+        let clonedSvgTime
         return Promise.resolve(node)
             .then(function (node) {
                 return cloneNode(node, options.filter, true);
             })
+            .then(() => {
+                cloneNodeTime = performance.now()
+                console.log("[dom-to-ww-to-img] Dom cloned : " + cloneNodeTime-startTime)
+            })
             .then(embedFonts)
+            .then(() => {
+                fontsTime = performance.now()
+                console.log("[dom-to-ww-to-img] Fonts embeded : " + fontsTime-cloneNodeTime)
+            })
             .then(inlineImages)
+            .then(() => {
+                imagesTime = performance.now()
+                console.log("[dom-to-ww-to-img] inlineImages : " + imagesTime-fontsTime)
+            })
             .then(applyOptions)
+            .then(() => {
+                optionsTime = performance.now()
+                console.log("[dom-to-ww-to-img] Apply options : " + optionsTime-imagesTime)
+            })
             .then(function (clone) {
+                clonedSvgTime = performance.now()
+                console.log("[dom-to-ww-to-img] Svg cloned : " + clonedSvgTime-optionsTime)
                 return makeSvgDataUri(clone,
                     options.width || util.width(node),
                     options.height || util.height(node)
